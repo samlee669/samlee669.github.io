@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E&U 訓練Hub 入口</title>
+<style>
+:root{--bg:#0b1220;--card:#111c33;--line:#223252;--cyan:#22d3ee;--text:#e5edf8;--sub:#8ba0c4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang TC",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 28px;max-width:420px;width:100%;text-align:center}
+.logo{font-size:40px;margin-bottom:10px}
+h1{font-size:19px;margin-bottom:6px}
+h1 span{color:var(--cyan)}
+p{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:14px}
+.url{font-size:12px;color:var(--cyan);background:#0e4a63;border-radius:8px;padding:8px 12px;margin-bottom:16px;word-break:break-all;display:none}
+a.btn{display:inline-block;background:var(--cyan);color:#062a3a;text-decoration:none;font-weight:700;border-radius:10px;padding:11px 26px;font-size:14px}
+.hist{font-size:11px;color:var(--sub);margin-top:16px}
+.hist a{color:var(--sub);word-break:break-all}
+.spin{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--cyan);border-radius:50%;margin:14px auto;animation:r 0.8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🎯</div>
+  <h1>E&U 訓練<span>Hub</span> 入口</h1>
+  <p>自動導向最新練習網址…<br>若 5 秒內沒跳轉，請點下方按鈕</p>
+  <div class="url" id="url"></div>
+  <div class="spin" id="spin"></div>
+  <a class="btn" id="go" href="#" style="display:none">前往練習頁</a>
+  <div class="hist" id="hist"></div>
+</div>
+<script>
+(async function(){
+  const q=s=>document.querySelector(s);
+  try{
+    const r=await fetch('tunnel.json?t='+Date.now(),{cache:'no-store'});
+    const d=await r.json();
+    if(d.url){
+      q('#url').textContent='目標: '+d.url+'/practice';
+      q('#url').style.display='block';
+      q('#go').href=d.url+'/practice';
+      q('#go').style.display='inline-block';
+      if(d.history&&d.history.length){
+        q('#hist').innerHTML='歷史網址（隧道重連時可試）：<br>'+d.history.map(u=>`<a href="${u}/practice">${u}</a>`).join('<br>');
+      }
+      setTimeout(()=>{location.replace(d.url+'/practice');},2500);
+      return;
+    }
+  }catch(e){}
+  q('#spin').style.display='none';
+  q('#go').style.display='inline-block';
+  q('#go').href='/';
+  q('#go').textContent='重新載入';
+})();
+</script>
+</body>
+</html>
